@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Never Bury Talent - Presentation Schedule</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root {
       --primary: #df7348;
@@ -22,10 +22,16 @@
       --row-time: #fff2eb;
       --note-bg: #fff6f0;
       --group-header-bg: #f7ebe5;
+      --pill-bg: #fff1e9;
+      --pill-border: #f1d3c6;
     }
 
     * {
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -212,7 +218,7 @@
     .schedule-list {
       border: 1px solid var(--border);
       border-radius: 18px;
-      overflow: visible;
+      overflow: hidden;
       background: #fff;
     }
 
@@ -222,11 +228,10 @@
       font-weight: 800;
       font-size: 0.98rem;
       padding: 12px 14px;
-      border: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
       border-left: 4px solid var(--accent);
-      margin: 0;
       position: sticky;
-      top: 0;
+      top: 8px;
       z-index: 10;
       box-shadow: 0 4px 10px rgba(120, 70, 45, 0.08);
     }
@@ -298,10 +303,27 @@
     }
 
     .group-members {
-      margin-top: 8px;
+      margin-top: 10px;
       font-size: 0.88rem;
       color: var(--muted);
-      line-height: 1.4;
+      line-height: 1.45;
+    }
+
+    .member-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .member-pill {
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
     }
 
     .empty-state {
@@ -337,7 +359,7 @@
       }
 
       .details-grid {
-        grid-template-columns: 1.2fr 0.9fr 1fr;
+        grid-template-columns: 1.3fr 0.8fr 1fr;
         gap: 8px 18px;
       }
 
@@ -370,11 +392,9 @@
 
     <section class="panel">
       <h2 class="section-title">Find Presentations</h2>
-      <p class="section-subtitle">
-        Default view is grouped by church for easy coordinator scanning.
-      </p>
+      <p class="section-subtitle">Default view is grouped by church for easy coordinator scanning.</p>
 
-      <div class="note-box">
+      <div class="note-box" id="scheduleNotice">
         <strong>Schedule Notice:</strong><br>
         The presentation schedule is subject to change by the ISM team as needed leading up to the event as we
         coordinate many moving pieces. Change requests will only be considered in the case of a direct overlap between
@@ -384,10 +404,8 @@
 
       <div class="filter-grid">
         <div class="full">
-          <input type="text" id="searchBox" placeholder="Search by participant or group name..." />
-          <div class="search-help">
-            Search by participant name, group name, church, city, or category.
-          </div>
+          <input type="text" id="searchBox" placeholder="Search by participant, group, church, city, or category" />
+          <div class="search-help">Search by participant name, group name, church, city, or category.</div>
         </div>
 
         <div>
@@ -409,319 +427,297 @@
     <section class="panel">
       <div class="results-toolbar">
         <h2 class="section-title" style="margin:0;">Schedule</h2>
-        <button class="clear-btn" id="clearFilters">Clear Filters</button>
+        <button class="clear-btn" id="clearFilters" type="button">Clear Filters</button>
       </div>
 
       <div class="status-message" id="statusMessage">Loading schedule...</div>
       <div class="results-count" id="resultsCount"></div>
 
       <div id="resultsContainer">
-        <div class="empty-state">
-          Loading schedule...
-        </div>
+        <div class="empty-state">Loading schedule...</div>
       </div>
     </section>
 
-    <div class="footer-note">
-      Mobile-friendly presentation schedule viewer
-    </div>
+    <div class="footer-note">GitHub Pages static schedule viewer using <code>schedule.csv</code> and
+      <code>group_members.csv</code></div>
   </div>
 
   <script>
-    let allData = [];
+    const REQUIRED_SCHEDULE_HEADERS = [
+      'RegistrantID',
+      'Participant Name',
+      'Category',
+      'Room',
+      'Round',
+      'Date',
+      'Church Name',
+      'Church City',
+      'Church State',
+      'District'
+    ];
+
+    const REQUIRED_GROUP_HEADERS = [
+      'Group Name',
+      'Participant Name',
+      'Category Description',
+      'Church Name',
+      'Church City',
+      'Church State',
+      'Group Max',
+      'Members In Group'
+    ];
+
+    let allRows = [];
     let groupMap = {};
 
-    const searchBox = document.getElementById("searchBox");
-    const churchFilter = document.getElementById("churchFilter");
-    const sortFilter = document.getElementById("sortFilter");
-    const clearFilters = document.getElementById("clearFilters");
-    const resultsContainer = document.getElementById("resultsContainer");
-    const resultsCount = document.getElementById("resultsCount");
-    const statusMessage = document.getElementById("statusMessage");
+    const searchBox = document.getElementById('searchBox');
+    const churchFilter = document.getElementById('churchFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const clearFilters = document.getElementById('clearFilters');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsCount = document.getElementById('resultsCount');
+    const statusMessage = document.getElementById('statusMessage');
 
     function normalize(text) {
-      return String(text || "").toLowerCase().trim();
+      return String(text || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
     }
 
     function escapeHtml(text) {
-      return String(text || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+      return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
-    function cleanFASTDate(dateString) {
-      let raw = String(dateString || "").trim();
-      if (!raw) return "";
-
-      if (raw.startsWith('="') && raw.endsWith('"')) {
-        raw = raw.slice(2, -1);
-      }
-
-      if (raw.startsWith('"') && raw.endsWith('"')) {
-        raw = raw.slice(1, -1);
-      }
-
-      return raw.trim();
+    function validateHeaders(rows, requiredHeaders) {
+      const first = rows && rows[0] ? Object.keys(rows[0]) : [];
+      return requiredHeaders.every(h => first.includes(h));
     }
 
-    function parseTimeOnly(dateString) {
-      const raw = cleanFASTDate(dateString);
-      if (!raw) return "";
-
-      const match = raw.match(/(\d{1,2}:\d{2}\s*[APMapm]{2})$/);
-      if (match) {
-        return match[1]
-          .replace(/\s*([APMapm]{2})/, " $1")
-          .toUpperCase();
-      }
-
+    function cleanFASTDate(value) {
+      let raw = String(value || '').trim();
+      if (!raw) return '';
+      if (raw.startsWith('="') && raw.endsWith('"')) raw = raw.slice(2, -1);
+      if (raw.startsWith('"') && raw.endsWith('"')) raw = raw.slice(1, -1);
+      raw = raw.replace(/^=/, '').trim();
       return raw;
     }
 
-    function timeToMinutes(dateString) {
-      const timeOnly = parseTimeOnly(dateString);
-      const match = timeOnly.match(/(\d{1,2}):(\d{2})\s([AP]M)/i);
-      if (!match) return 999999;
+    function parseDateObject(value) {
+      const cleaned = cleanFASTDate(value);
+      if (!cleaned) return null;
 
-      let hour = parseInt(match[1], 10);
-      const minute = parseInt(match[2], 10);
-      const meridiem = match[3].toUpperCase();
+      const match = cleaned.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*([AP]M)$/i);
+      if (match) {
+        let [, month, day, year, hour, minute, meridiem] = match;
+        month = Number(month);
+        day = Number(day);
+        year = Number(year);
+        hour = Number(hour);
+        minute = Number(minute);
+        meridiem = meridiem.toUpperCase();
+        if (meridiem === 'PM' && hour !== 12) hour += 12;
+        if (meridiem === 'AM' && hour === 12) hour = 0;
+        return new Date(year, month - 1, day, hour, minute);
+      }
 
-      if (meridiem === "PM" && hour !== 12) hour += 12;
-      if (meridiem === "AM" && hour === 12) hour = 0;
+      const parsed = new Date(cleaned);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
 
-      return hour * 60 + minute;
+    function formatTime(value) {
+      const date = parseDateObject(value);
+      if (!date) return cleanFASTDate(value);
+      return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function formatDateTime(value) {
+      const date = parseDateObject(value);
+      if (!date) return cleanFASTDate(value);
+      return date.toLocaleString([], {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+    }
+
+    function timeSortValue(value) {
+      const date = parseDateObject(value);
+      return date ? date.getTime() : Number.MAX_SAFE_INTEGER;
     }
 
     function buildChurchLabel(row) {
-      const city = (row["Church City"] || "").trim();
-      const church = (row["Church Name"] || "").trim();
-
+      const city = String(row['Church City'] || '').trim();
+      const church = String(row['Church Name'] || '').trim();
       if (city && church) return `${city} - ${church}`;
-      if (city) return city;
       if (church) return church;
-      return "";
+      if (city) return city;
+      return 'Unassigned Church';
     }
 
-    function loadScheduleCSV() {
-      return new Promise((resolve, reject) => {
-        Papa.parse("schedule.csv", {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: function (results) {
-            resolve(results.data || []);
-          },
-          error: function (error) {
-            reject(error);
-          }
-        });
-      });
-    }
-
-    function loadGroupMembersCSV() {
-      return new Promise((resolve) => {
-        Papa.parse("group_members.csv", {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: function (results) {
-            resolve(results.data || []);
-          },
-          error: function () {
-            resolve([]);
-          }
-        });
-      });
-    }
-
-    function buildGroupMap(groupRows) {
+    function buildGroupMap(rows) {
       const map = {};
-
-      groupRows.forEach(row => {
-        const groupName = (row["Group Name"] || "").trim();
-        const participantName = (row["Participant Name"] || "").trim();
-
+      rows.forEach(row => {
+        const groupName = String(row['Group Name'] || '').trim();
+        const participantName = String(row['Participant Name'] || '').trim();
         if (!groupName || !participantName) return;
-
-        const key = groupName.toLowerCase();
-        if (!map[key]) {
-          map[key] = [];
-        }
-
-        if (!map[key].includes(participantName)) {
-          map[key].push(participantName);
-        }
+        const key = normalize(groupName);
+        if (!map[key]) map[key] = [];
+        if (!map[key].includes(participantName)) map[key].push(participantName);
       });
-
-      Object.keys(map).forEach(key => {
-        map[key].sort((a, b) => a.localeCompare(b));
-      });
-
+      Object.keys(map).forEach(key => map[key].sort((a, b) => a.localeCompare(b)));
       return map;
     }
 
-    async function loadAllData() {
-      statusMessage.textContent = "Loading schedule...";
-      resultsCount.textContent = "";
-
-      try {
-        const [scheduleRows, groupRows] = await Promise.all([
-          loadScheduleCSV(),
-          loadGroupMembersCSV()
-        ]);
-
-        if (!scheduleRows || scheduleRows.length === 0) {
-          statusMessage.textContent = "No schedule data was found in schedule.csv.";
-          resultsContainer.innerHTML = `
-            <div class="empty-state">
-              No schedule data available yet.
-            </div>
-          `;
-          return;
-        }
-
-        allData = scheduleRows;
-        groupMap = buildGroupMap(groupRows);
-
-        statusMessage.textContent = groupRows.length > 0
-          ? "Schedule and group-member data loaded."
-          : "Schedule loaded. Group-member file not found or empty.";
-
-        populateChurchDropdown();
-        displayResults();
-      } catch (error) {
-        statusMessage.textContent = "Could not load schedule.csv.";
-        resultsContainer.innerHTML = `
-          <div class="empty-state">
-            Could not load the schedule. Make sure schedule.csv is uploaded with this page.
-          </div>
-        `;
-      }
-    }
-
-    function populateChurchDropdown() {
-      const currentValue = churchFilter.value;
-
-      const churches = [...new Set(
-        allData.map(row => buildChurchLabel(row))
-      )]
-        .filter(label => label !== "")
-        .sort((a, b) => a.localeCompare(b));
-
-      churchFilter.innerHTML = `<option value="">All Churches (by City)</option>`;
-
-      churches.forEach(label => {
-        const option = document.createElement("option");
-        option.value = label;
-        option.textContent = label;
-        churchFilter.appendChild(option);
-      });
-
-      churchFilter.value = currentValue;
-    }
-
     function getGroupMembers(entryName) {
-      const key = normalize(entryName);
-      return groupMap[key] || [];
+      return groupMap[normalize(entryName)] || [];
     }
 
-    function getGroupKey(row, sortValue) {
-      if (sortValue === "church") return buildChurchLabel(row);
-      if (sortValue === "time") return parseTimeOnly(row["Date"]);
-      return "";
+    function isGroupEntry(row) {
+      return getGroupMembers(row['Participant Name']).length > 0;
     }
 
-    function getGroupHeaderLabel(groupKey, sortValue) {
-      if (sortValue === "church") return groupKey || "Unassigned Church";
-      if (sortValue === "time") return groupKey || "Time Unavailable";
-      return "";
+    function getSearchBlob(row) {
+      const members = getGroupMembers(row['Participant Name']).join(' ');
+      return normalize([
+        row['Participant Name'],
+        row['Category'],
+        row['Church Name'],
+        row['Church City'],
+        row['Church State'],
+        buildChurchLabel(row),
+        members
+      ].join(' | '));
     }
 
-    function getGroupSubtext(groupRows, sortValue) {
-      if (!groupRows.length) return "";
+    function sortRows(rows, mode) {
+      rows.sort((a, b) => {
+        if (mode === 'church') {
+          const churchCompare = normalize(buildChurchLabel(a)).localeCompare(normalize(buildChurchLabel(b)));
+          if (churchCompare !== 0) return churchCompare;
 
-      if (sortValue === "church") {
-        return `${groupRows.length} presentation${groupRows.length === 1 ? "" : "s"}`;
-      }
+          const timeCompare = timeSortValue(a['Date']) - timeSortValue(b['Date']);
+          if (timeCompare !== 0) return timeCompare;
 
-      if (sortValue === "time") {
-        return `${groupRows.length} presentation${groupRows.length === 1 ? "" : "s"} in this time slot`;
-      }
-
-      return "";
-    }
-
-    function sortRows(filtered, sortValue) {
-      filtered.sort((a, b) => {
-        if (sortValue === "church") {
-          const churchA = normalize(buildChurchLabel(a));
-          const churchB = normalize(buildChurchLabel(b));
-          if (churchA !== churchB) return churchA.localeCompare(churchB);
-
-          const timeDiff = timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
-          if (timeDiff !== 0) return timeDiff;
-
-          return normalize(a["Participant Name"]).localeCompare(normalize(b["Participant Name"]));
+          return normalize(a['Participant Name']).localeCompare(normalize(b['Participant Name']));
         }
 
-        if (sortValue === "time") {
-          const timeDiff = timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
-          if (timeDiff !== 0) return timeDiff;
+        if (mode === 'time') {
+          const timeCompare = timeSortValue(a['Date']) - timeSortValue(b['Date']);
+          if (timeCompare !== 0) return timeCompare;
 
-          return normalize(a["Participant Name"]).localeCompare(normalize(b["Participant Name"]));
+          const churchCompare = normalize(buildChurchLabel(a)).localeCompare(normalize(buildChurchLabel(b)));
+          if (churchCompare !== 0) return churchCompare;
+
+          return normalize(a['Participant Name']).localeCompare(normalize(b['Participant Name']));
         }
 
-        const nameA = normalize(a["Participant Name"]);
-        const nameB = normalize(b["Participant Name"]);
-        if (nameA !== nameB) return nameA.localeCompare(nameB);
+        const nameCompare = normalize(a['Participant Name']).localeCompare(normalize(b['Participant Name']));
+        if (nameCompare !== 0) return nameCompare;
 
-        return timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
+        return timeSortValue(a['Date']) - timeSortValue(b['Date']);
       });
+      return rows;
+    }
+
+    function renderMembers(entryName) {
+      const members = getGroupMembers(entryName);
+      if (!members.length) return '';
+
+      return `
+        <div class="group-members">
+          <span class="label">Group Members:</span>
+          <div class="member-pills">
+            ${members.map(member => `<span class="member-pill">${escapeHtml(member)}</span>`).join('')}
+          </div>
+        </div>
+      `;
     }
 
     function renderRow(row) {
-      const entryName = row["Participant Name"] || "";
-      const category = row["Category"] || "";
-      const room = row["Room"] || "";
-      const timeOnly = parseTimeOnly(row["Date"]);
+      const entryName = String(row['Participant Name'] || '').trim();
+      const category = String(row['Category'] || '').trim();
+      const room = String(row['Room'] || '').trim() || 'TBD';
       const churchLabel = buildChurchLabel(row);
-      const members = getGroupMembers(entryName);
+      const time = formatTime(row['Date']) || 'TBD';
+      const round = String(row['Round'] || '').trim();
+      const isGroup = isGroupEntry(row);
 
       return `
         <div class="schedule-row">
-          <div class="time-cell">${escapeHtml(timeOnly)}</div>
+          <div class="time-cell">${escapeHtml(time)}</div>
           <div class="info-cell">
-            <div class="entry-name">${escapeHtml(entryName)}</div>
+            <div class="entry-name">${escapeHtml(entryName)}${isGroup ? ' <span class="label">- Group</span>' : ''}</div>
             <div class="details-grid">
               <div class="detail">
                 <span class="label">Category:</span><br>
-                ${escapeHtml(category)}
+                ${escapeHtml(category || 'TBD')}
               </div>
-
               <div class="detail">
                 <span class="label">Room:</span><br>
-                ${escapeHtml(room)}
+                ${escapeHtml(room)}${round ? `<br><span class="label">Round:</span> ${escapeHtml(round)}` : ''}
               </div>
-
               <div class="detail">
                 <span class="label">Church:</span><br>
                 ${escapeHtml(churchLabel)}
               </div>
             </div>
-
-            ${members.length > 0 ? `
-              <div class="group-members">
-                <span class="label">Group Members:</span>
-                ${escapeHtml(members.join(", "))}
-              </div>
-            ` : ""}
+            ${renderMembers(entryName)}
           </div>
         </div>
       `;
+    }
+
+    function renderGroupedRows(rows, mode) {
+      let currentGroup = null;
+      let html = '<div class="schedule-list">';
+
+      rows.forEach(row => {
+        const nextGroup = mode === 'church'
+          ? buildChurchLabel(row)
+          : formatTime(row['Date']) || 'Time Unavailable';
+
+        if (nextGroup !== currentGroup) {
+          currentGroup = nextGroup;
+          const count = rows.filter(item => (mode === 'church' ? buildChurchLabel(item) : (formatTime(item['Date']) || 'Time Unavailable')) === nextGroup).length;
+          html += `
+            <div class="group-header">
+              <div>${escapeHtml(nextGroup)}</div>
+              <div class="group-subtext">${count} presentation${count === 1 ? '' : 's'}</div>
+            </div>
+          `;
+        }
+        html += renderRow(row);
+      });
+
+      html += '</div>';
+      return html;
+    }
+
+    function renderFlatRows(rows) {
+      return `<div class="schedule-list">${rows.map(renderRow).join('')}</div>`;
+    }
+
+    function populateChurchFilter() {
+      const currentValue = churchFilter.value;
+      const labels = [...new Set(allRows.map(buildChurchLabel))].sort((a, b) => a.localeCompare(b));
+      churchFilter.innerHTML = '<option value="">All Churches (by City)</option>';
+      labels.forEach(label => {
+        const option = document.createElement('option');
+        option.value = label;
+        option.textContent = label;
+        churchFilter.appendChild(option);
+      });
+      churchFilter.value = currentValue;
     }
 
     function displayResults() {
@@ -729,90 +725,93 @@
       const churchValue = normalize(churchFilter.value);
       const sortValue = sortFilter.value;
 
-      const filtered = allData.filter(row => {
-        const entryName = normalize(row["Participant Name"]);
-        const category = normalize(row["Category"]);
-        const church = normalize(row["Church Name"]);
-        const city = normalize(row["Church City"]);
-        const churchLabel = normalize(buildChurchLabel(row));
-        const groupMembers = getGroupMembers(row["Participant Name"]).join(" ").toLowerCase();
-
-        const matchesSearch =
-          !searchValue ||
-          entryName.includes(searchValue) ||
-          category.includes(searchValue) ||
-          church.includes(searchValue) ||
-          city.includes(searchValue) ||
-          churchLabel.includes(searchValue) ||
-          groupMembers.includes(searchValue);
-
-        const matchesChurch =
-          !churchValue || churchLabel === churchValue;
-
+      const filtered = allRows.filter(row => {
+        const matchesSearch = !searchValue || getSearchBlob(row).includes(searchValue);
+        const matchesChurch = !churchValue || normalize(buildChurchLabel(row)) === churchValue;
         return matchesSearch && matchesChurch;
       });
 
       sortRows(filtered, sortValue);
+      resultsCount.textContent = `${filtered.length} presentation${filtered.length === 1 ? '' : 's'} found`;
 
-      resultsCount.textContent =
-        `${filtered.length} presentation${filtered.length === 1 ? "" : "s"} found`;
-
-      if (filtered.length === 0) {
-        resultsContainer.innerHTML = `
-          <div class="empty-state">
-            No matching presentations found.
-          </div>
-        `;
+      if (!filtered.length) {
+        resultsContainer.innerHTML = '<div class="empty-state">No matching presentations found.</div>';
         return;
       }
 
-      let html = `<div class="schedule-list">`;
-
-      if (sortValue === "church" || sortValue === "time") {
-        let currentGroupKey = null;
-
-        filtered.forEach(row => {
-          const groupKey = getGroupKey(row, sortValue);
-
-          if (groupKey !== currentGroupKey) {
-            currentGroupKey = groupKey;
-
-            const groupRows = filtered.filter(item => getGroupKey(item, sortValue) === groupKey);
-
-            html += `
-              <div class="group-header">
-                <div>${escapeHtml(getGroupHeaderLabel(groupKey, sortValue))}</div>
-                <div class="group-subtext">${escapeHtml(getGroupSubtext(groupRows, sortValue))}</div>
-              </div>
-            `;
-          }
-
-          html += renderRow(row);
-        });
-      } else {
-        filtered.forEach(row => {
-          html += renderRow(row);
-        });
-      }
-
-      html += `</div>`;
-      resultsContainer.innerHTML = html;
+      resultsContainer.innerHTML = sortValue === 'name'
+        ? renderFlatRows(filtered)
+        : renderGroupedRows(filtered, sortValue);
     }
 
     function resetFilters() {
-      searchBox.value = "";
-      churchFilter.value = "";
-      sortFilter.value = "church";
+      searchBox.value = '';
+      churchFilter.value = '';
+      sortFilter.value = 'church';
       displayResults();
     }
 
-    searchBox.addEventListener("input", displayResults);
-    churchFilter.addEventListener("change", displayResults);
-    sortFilter.addEventListener("change", displayResults);
-    clearFilters.addEventListener("click", resetFilters);
+    function loadCSV(path) {
+      return new Promise((resolve, reject) => {
+        Papa.parse(path, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: results => resolve(results.data || []),
+          error: error => reject(error)
+        });
+      });
+    }
 
-    loadAllData();
-    setInterval(loadAllData, 60000);
+    async function loadData() {
+      statusMessage.textContent = 'Loading schedule...';
+      resultsCount.textContent = '';
+      resultsContainer.innerHTML = '<div class="empty-state">Loading schedule...</div>';
+
+      try {
+        const [scheduleRows, groupRows] = await Promise.all([
+          loadCSV('schedule.csv'),
+          loadCSV('group_members.csv').catch(() => [])
+        ]);
+
+        if (!scheduleRows.length) {
+          statusMessage.textContent = 'No schedule data was found in schedule.csv.';
+          resultsContainer.innerHTML = '<div class="empty-state">No schedule data available yet.</div>';
+          return;
+        }
+
+        if (!validateHeaders(scheduleRows, REQUIRED_SCHEDULE_HEADERS)) {
+          statusMessage.textContent = 'schedule.csv is missing one or more required FAST headers.';
+          resultsContainer.innerHTML = '<div class="empty-state">Check your schedule.csv headers and try again.</div>';
+          return;
+        }
+
+        allRows = scheduleRows.filter(row => Object.values(row).some(value => String(value || '').trim() !== ''));
+
+        if (groupRows.length && validateHeaders(groupRows, REQUIRED_GROUP_HEADERS)) {
+          groupMap = buildGroupMap(groupRows);
+          statusMessage.textContent = 'Schedule and group member data loaded.';
+        } else {
+          groupMap = {};
+          statusMessage.textContent = 'Schedule loaded. Group member details were not found or did not match expected headers.';
+        }
+
+        populateChurchFilter();
+        displayResults();
+      } catch (error) {
+        console.error(error);
+        statusMessage.textContent = 'Could not load schedule.csv.';
+        resultsContainer.innerHTML = '<div class="empty-state">Could not load the schedule. Make sure schedule.csv and group_members.csv are uploaded beside this file.</div>';
+      }
+    }
+
+    searchBox.addEventListener('input', displayResults);
+    churchFilter.addEventListener('change', displayResults);
+    sortFilter.addEventListener('change', displayResults);
+    clearFilters.addEventListener('click', resetFilters);
+
+    loadData();
+    setInterval(loadData, 60000);
   </script>
 </body>
 
