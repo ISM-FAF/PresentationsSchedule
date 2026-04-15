@@ -326,6 +326,12 @@
       opacity: 0.9;
     }
 
+    .group-divider {
+      height: 12px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
     .empty-state {
       text-align: center;
       padding: 28px 14px;
@@ -692,10 +698,14 @@
         counts[g] = (counts[g] || 0) + 1;
       });
 
-      rows.forEach(row => {
+      rows.forEach((row, index) => {
         const nextGroup = getGroup(row);
 
         if (nextGroup !== currentGroup) {
+          if (currentGroup !== null && (mode !== 'name' || counts[currentGroup] > 1)) {
+            html += `<div class="group-divider"></div>`;
+          }
+
           currentGroup = nextGroup;
           const count = counts[nextGroup];
 
