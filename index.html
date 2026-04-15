@@ -702,8 +702,12 @@
         const nextGroup = getGroup(row);
 
         if (nextGroup !== currentGroup) {
-          if (currentGroup !== null && (mode !== 'name' || counts[currentGroup] > 1)) {
-            html += `<div class="group-divider"></div>`;
+          if (currentGroup !== null) {
+            const prevCount = counts[currentGroup];
+            const nextCount = counts[nextGroup];
+            if (mode !== 'name' || prevCount > 1 || nextCount > 1) {
+              html += `<div class="group-divider"></div>`;
+            }
           }
 
           currentGroup = nextGroup;
