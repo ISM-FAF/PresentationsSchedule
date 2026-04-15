@@ -138,7 +138,7 @@
       border-radius: 14px;
       padding: 12px 14px;
       font-size: 0.9rem;
-      line-height: 1.4;
+      line-height: 1.45;
       margin-bottom: 12px;
     }
 
@@ -222,10 +222,11 @@
       font-weight: 800;
       font-size: 0.98rem;
       padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
+      border: 1px solid var(--border);
       border-left: 4px solid var(--accent);
+      margin: 0;
       position: sticky;
-      top: 8px;
+      top: 0;
       z-index: 10;
       box-shadow: 0 4px 10px rgba(120, 70, 45, 0.08);
     }
@@ -453,7 +454,6 @@
 
     function cleanFASTDate(dateString) {
       let raw = String(dateString || "").trim();
-
       if (!raw) return "";
 
       if (raw.startsWith('="') && raw.endsWith('"')) {
@@ -638,7 +638,6 @@
     function getGroupHeaderLabel(groupKey, sortValue) {
       if (sortValue === "church") return groupKey || "Unassigned Church";
       if (sortValue === "time") return groupKey || "Time Unavailable";
-      if (sortValue === "name") return groupKey || "#";
       return "";
     }
 
@@ -651,10 +650,6 @@
 
       if (sortValue === "time") {
         return `${groupRows.length} presentation${groupRows.length === 1 ? "" : "s"} in this time slot`;
-      }
-
-      if (sortValue === "name") {
-        return `${groupRows.length} presentation${groupRows.length === 1 ? "" : "s"}`;
       }
 
       return "";
@@ -771,7 +766,37 @@
         return;
       }
 
-      let html = `<div class="schedule-list">`
+      let html = `<div class="schedule-list">`;
+
+      if (sortValue === "church" || sortValue === "time") {
+        let currentGroupKey = null;
+
+        filtered.forEach(row => {
+          const groupKey = getGroupKey(row, sortValue);
+
+          if (groupKey !== currentGroupKey) {
+            currentGroupKey = groupKey;
+
+            const groupRows = filtered.filter(item => getGroupKey(item, sortValue) === groupKey);
+
+            html += `
+              <div class="group-header">
+                <div>${escapeHtml(getGroupHeaderLabel(groupKey, sortValue))}</div>
+                <div class="group-subtext">${escapeHtml(getGroupSubtext(groupRows, sortValue))}</div>
+              </div>
+            `;
+          }
+
+          html += renderRow(row);
+        });
+      } else {
+        filtered.forEach(row => {
+          html += renderRow(row);
+        });
+      }
+
+      html += `</div>`;
+      resultsContainer.innerHTML = html;
     }
 
     function resetFilters() {
