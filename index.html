@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Never Bury Talent - Presentation Schedule</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  <style>
+    :root {
+      --primary: #df7348;
+      --primary-dark: #c85f36;
+      --primary-soft: #f8e3da;
+      --accent: #8f4d36;
+      --bg: #f6f3f1;
+      --card: #ffffff;
+      --text: #2f2724;
+      --muted: #786a64;
+      --border: #ead9d1;
+      --shadow: 0 8px 24px rgba(120, 70, 45, 0.10);
+      --row-alt: #fff9f6;
+      --row-time: #fff2eb;
+      --note-bg: #fff6f0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #f8f4f2 0%, #f3efec 100%);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px 14px 28px;
+    }
+
+    .hero {
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .hero-top {
+      background: linear-gradient(135deg, var(--primary-soft), #fff7f3);
+      padding: 22px 18px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-kicker {
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1.05;
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .hero-title span {
+      display: block;
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-top: 6px;
+      font-weight: 700;
+    }
+
+    .hero-bottom {
+      padding: 16px 18px 18px;
+      text-align: center;
+    }
+
+    .event-name {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .event-meta {
+      margin-top: 8px;
+      font-size: 0.98rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      margin: 0 0 12px 0;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .section-subtitle {
+      margin: -4px 0 12px 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .search-help {
+      margin: -4px 0 12px 2px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 16px;
+      color: var(--text);
+      margin-bottom: 12px;
+      appearance: none;
+    }
+
+    input[type="text"]::placeholder {
+      color: #9b8d86;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(223, 115, 72, 0.15);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .results-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .results-count {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .clear-btn {
+      border: none;
+      background: var(--primary-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .clear-btn:hover {
+      background: #f4d6c9;
+    }
+
+    .status-message {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .note-box {
+      background: var(--note-bg);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .schedule-list {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .schedule-row {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .schedule-row:nth-child(even) {
+      background: var(--row-alt);
+    }
+
+    .schedule-row:last-child {
+      border-bottom: none;
+    }
+
+    .time-cell {
+      background: var(--row-time);
+      border-right: 1px solid var(--border);
+      padding: 14px 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .info-cell {
+      padding: 12px 14px;
+    }
+
+    .entry-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .detail {
+      font-size: 0.92rem;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .label {
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .group-members {
+      margin-top: 8px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 14px;
+      color: var(--muted);
+      font-size: 0.96rem;
+      line-height: 1.5;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 720px) {
+      .app {
+        padding: 20px 18px 34px;
+      }
+
+      .filter-grid {
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 12px;
+      }
+
+      .filter-grid .full {
+        grid-column: 1 / -1;
+      }
+
+      .details-grid {
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 8px 18px;
+      }
+
+      .time-cell {
+        font-size: 1.05rem;
+      }
+
+      .hero-title {
+        font-size: 2.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div class="hero-top">
+        <div class="hero-kicker">Never Bury Talent</div>
+        <h1 class="hero-title">Presentation Schedule <span>Search Tool</span></h1>
+      </div>
+      <div class="hero-bottom">
+        <p class="event-name">Illinois District Fine Arts Festival</p>
+        <div class="event-meta">
+          Carlinville, IL<br>
+          April 18, 2026
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="section-title">Find Presentations</h2>
+      <p class="section-subtitle">
+        Default view is sorted by time for easy schedule scanning.
+      </p>
+<div class="note-box" style="display:block;">
+  <strong>Schedule Notice:</strong><br>
+  ISM reserves the right to adjust the entry schedule as deemed necessary to ensure the successful and seamless execution of the overall event. Due to the intricate nature of scheduling logistics, no individual schedule requests can be accommodated, with the exception of direct overlaps involving a single participant’s multiple presentations. We appreciate your understanding and cooperation in making this festival a remarkable experience for all involved.  
+</div>
+
+      <div class="filter-grid">
+        <div class="full">
+          <input
+            type="text"
+            id="searchBox"
+            placeholder="Search by participant or group name..."
+          />
+          <div class="search-help">
+            Search by participant name, group name, church, city, or category.
+          </div>
+        </div>
+
+        <div>
+          <select id="churchFilter">
+            <option value="">All Churches (by City)</option>
+          </select>
+        </div>
+
+        <div>
+          <select id="sortFilter">
+            <option value="time">Sort by Time</option>
+            <option value="name">Sort by Participant / Entry Name</option>
+            <option value="church">Sort by Church</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="results-toolbar">
+        <h2 class="section-title" style="margin:0;">Schedule</h2>
+        <button class="clear-btn" id="clearFilters">Clear Filters</button>
+      </div>
+
+      <div class="status-message" id="statusMessage">Loading schedule...</div>
+      <div class="note-box" id="sortNote">
+        When sorting by participant / entry name, group presentations may still be listed under the group name. If needed, search the group name as well.
+      </div>
+      <div class="results-count" id="resultsCount"></div>
+
+      <div id="resultsContainer">
+        <div class="empty-state">
+          Loading schedule...
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      Mobile-friendly presentation schedule viewer
+    </div>
+  </div>
+
+  <script>
+    let allData = [];
+    let groupMap = {};
+
+    const searchBox = document.getElementById("searchBox");
+    const churchFilter = document.getElementById("churchFilter");
+    const sortFilter = document.getElementById("sortFilter");
+    const clearFilters = document.getElementById("clearFilters");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const resultsCount = document.getElementById("resultsCount");
+    const statusMessage = document.getElementById("statusMessage");
+    const sortNote = document.getElementById("sortNote");
+
+    function buildChurchLabel(row) {
+      const city = (row["Church City"] || "").trim();
+      const church = (row["Church Name"] || "").trim();
+
+      if (city && church) return `${city} - ${church}`;
+      if (city) return city;
+      if (church) return church;
+      return "";
+    }
+
+    function parseTimeOnly(dateString) {
+      const raw = (dateString || "").trim();
+      if (!raw) return "";
+
+      const match = raw.match(/(\d{1,2}:\d{2}\s?[APMapm]{2})$/);
+      if (match) {
+        return match[1].replace(/\s?([APMapm]{2})/, " $1").toUpperCase();
+      }
+
+      return raw;
+    }
+
+    function timeToMinutes(dateString) {
+      const timeOnly = parseTimeOnly(dateString);
+      const match = timeOnly.match(/(\d{1,2}):(\d{2})\s([AP]M)/i);
+      if (!match) return 999999;
+
+      let hour = parseInt(match[1], 10);
+      const minute = parseInt(match[2], 10);
+      const meridiem = match[3].toUpperCase();
+
+      if (meridiem === "PM" && hour !== 12) hour += 12;
+      if (meridiem === "AM" && hour === 12) hour = 0;
+
+      return hour * 60 + minute;
+    }
+
+    function normalize(text) {
+      return String(text || "").toLowerCase().trim();
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function loadScheduleCSV() {
+      return new Promise((resolve, reject) => {
+        Papa.parse("schedule.csv", {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            resolve(results.data || []);
+          },
+          error: function(error) {
+            reject(error);
+          }
+        });
+      });
+    }
+
+    function loadGroupMembersCSV() {
+      return new Promise((resolve) => {
+        Papa.parse("group_members.csv", {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            resolve(results.data || []);
+          },
+          error: function() {
+            resolve([]);
+          }
+        });
+      });
+    }
+
+    function buildGroupMap(groupRows) {
+      const map = {};
+
+      groupRows.forEach(row => {
+        const groupName = (row["Group Name"] || "").trim();
+        const participantName = (row["Participant Name"] || "").trim();
+
+        if (!groupName || !participantName) return;
+
+        const key = groupName.toLowerCase();
+        if (!map[key]) {
+          map[key] = [];
+        }
+
+        if (!map[key].includes(participantName)) {
+          map[key].push(participantName);
+        }
+      });
+
+      Object.keys(map).forEach(key => {
+        map[key].sort((a, b) => a.localeCompare(b));
+      });
+
+      return map;
+    }
+
+    async function loadAllData() {
+      statusMessage.textContent = "Loading schedule...";
+      resultsCount.textContent = "";
+
+      try {
+        const [scheduleRows, groupRows] = await Promise.all([
+          loadScheduleCSV(),
+          loadGroupMembersCSV()
+        ]);
+
+        if (!scheduleRows || scheduleRows.length === 0) {
+          statusMessage.textContent = "No schedule data was found in schedule.csv.";
+          resultsContainer.innerHTML = `
+            <div class="empty-state">
+              No schedule data available yet.
+            </div>
+          `;
+          return;
+        }
+
+        allData = scheduleRows;
+        groupMap = buildGroupMap(groupRows);
+
+        statusMessage.textContent = groupRows.length > 0
+          ? "Schedule and group-member data loaded."
+          : "Schedule loaded. Group-member file not found or empty.";
+
+        populateChurchDropdown();
+        displayResults();
+      } catch (error) {
+        statusMessage.textContent = "Could not load schedule.csv.";
+        resultsContainer.innerHTML = `
+          <div class="empty-state">
+            Could not load the schedule. Make sure schedule.csv is uploaded with this page.
+          </div>
+        `;
+      }
+    }
+
+    function populateChurchDropdown() {
+      const currentValue = churchFilter.value;
+
+      const churches = [...new Set(
+        allData.map(row => buildChurchLabel(row))
+      )]
+      .filter(label => label !== "")
+      .sort((a, b) => a.localeCompare(b));
+
+      churchFilter.innerHTML = `<option value="">All Churches (by City)</option>`;
+
+      churches.forEach(label => {
+        const option = document.createElement("option");
+        option.value = label;
+        option.textContent = label;
+        churchFilter.appendChild(option);
+      });
+
+      churchFilter.value = currentValue;
+    }
+
+    function getGroupMembers(entryName) {
+      const key = normalize(entryName);
+      return groupMap[key] || [];
+    }
+
+    function displayResults() {
+      const searchValue = normalize(searchBox.value);
+      const churchValue = normalize(churchFilter.value);
+      const sortValue = sortFilter.value;
+
+      sortNote.style.display = sortValue === "name" ? "block" : "none";
+
+      const filtered = allData.filter(row => {
+        const entryName = normalize(row["Participant Name"]);
+        const category = normalize(row["Category"]);
+        const church = normalize(row["Church Name"]);
+        const city = normalize(row["Church City"]);
+        const churchLabel = normalize(buildChurchLabel(row));
+        const groupMembers = getGroupMembers(row["Participant Name"]).join(" ").toLowerCase();
+
+        const matchesSearch =
+          !searchValue ||
+          entryName.includes(searchValue) ||
+          category.includes(searchValue) ||
+          church.includes(searchValue) ||
+          city.includes(searchValue) ||
+          churchLabel.includes(searchValue) ||
+          groupMembers.includes(searchValue);
+
+        const matchesChurch =
+          !churchValue || churchLabel === churchValue;
+
+        return matchesSearch && matchesChurch;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortValue === "name") {
+          const nameA = normalize(a["Participant Name"]);
+          const nameB = normalize(b["Participant Name"]);
+          return nameA.localeCompare(nameB);
+        }
+
+        if (sortValue === "church") {
+          const churchA = normalize(buildChurchLabel(a));
+          const churchB = normalize(buildChurchLabel(b));
+          if (churchA !== churchB) return churchA.localeCompare(churchB);
+
+          return timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
+        }
+
+        const timeDiff = timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
+        if (timeDiff !== 0) return timeDiff;
+
+        return normalize(a["Participant Name"]).localeCompare(normalize(b["Participant Name"]));
+      });
+
+      resultsCount.textContent =
+        `${filtered.length} presentation${filtered.length === 1 ? "" : "s"} found`;
+
+      if (filtered.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="empty-state">
+            No matching presentations found.
+          </div>
+        `;
+        return;
+      }
+
+      const html = filtered.map(row => {
+        const entryName = row["Participant Name"] || "";
+        const category = row["Category"] || "";
+        const room = row["Room"] || "";
+        const timeOnly = parseTimeOnly(row["Date"]);
+        const churchLabel = buildChurchLabel(row);
+        const members = getGroupMembers(entryName);
+
+        return `
+          <div class="schedule-row">
+            <div class="time-cell">${escapeHtml(timeOnly)}</div>
+            <div class="info-cell">
+              <div class="entry-name">${escapeHtml(entryName)}</div>
+              <div class="details-grid">
+                <div class="detail">
+                  <span class="label">Category:</span><br>
+                  ${escapeHtml(category)}
+                </div>
+                <div class="detail">
+                  <span class="label">Room:</span><br>
+                  ${escapeHtml(room)}
+                </div>
+                <div class="detail">
+                  <span class="label">Church:</span><br>
+                  ${escapeHtml(churchLabel)}
+                </div>
+              </div>
+              ${members.length > 0 ? `
+                <div class="group-members">
+                  <span class="label">Group Members:</span>
+                  ${escapeHtml(members.join(", "))}
+                </div>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      resultsContainer.innerHTML = `<div class="schedule-list">${html}</div>`;
+    }
+
+    function resetFilters() {
+      searchBox.value = "";
+      churchFilter.value = "";
+      sortFilter.value = "time";
+      displayResults();
+    }
+
+    searchBox.addEventListener("input", displayResults);
+    churchFilter.addEventListener("change", displayResults);
+    sortFilter.addEventListener("change", displayResults);
+    clearFilters.addEventListener("click", resetFilters);
+
+    loadAllData();
+    setInterval(loadAllData, 60000);
+  </script>
+</body>
+</html>
