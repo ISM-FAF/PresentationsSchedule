@@ -680,30 +680,39 @@
       let currentGroup = null;
       let html = '<div class="schedule-list">';
 
+      const getGroup = (row) => {
+        if (mode === 'church') return buildChurchLabel(row);
+        if (mode === 'name') return String(row['Participant Name'] || '').trim();
+        return formatTime(row['Date']) || 'Time Unavailable';
+      };
+
+      const counts = {};
       rows.forEach(row => {
-        const nextGroup = mode === 'church'
-          ? buildChurchLabel(row)
-          : formatTime(row['Date']) || 'Time Unavailable';
+        const g = getGroup(row);
+        counts[g] = (counts[g] || 0) + 1;
+      });
+
+      rows.forEach(row => {
+        const nextGroup = getGroup(row);
 
         if (nextGroup !== currentGroup) {
           currentGroup = nextGroup;
-          const count = rows.filter(item => (mode === 'church' ? buildChurchLabel(item) : (formatTime(item['Date']) || 'Time Unavailable')) === nextGroup).length;
-          html += `
-            <div class="group-header">
-              <div>${escapeHtml(nextGroup)}</div>
-              <div class="group-subtext">${count} presentation${count === 1 ? '' : 's'}</div>
-            </div>
-          `;
+          const count = counts[nextGroup];
+
+          if (mode !== 'name' || count > 1) {
+            html += `
+              <div class="group-header">
+                <div>${escapeHtml(nextGroup)}</div>
+                <div class="group-subtext">${count} presentation${count === 1 ? '' : 's'}</div>
+              </div>
+            `;
+          }
         }
         html += renderRow(row);
       });
 
       html += '</div>';
       return html;
-    }
-
-    function renderFlatRows(rows) {
-      return `<div class="schedule-list">${rows.map(renderRow).join('')}</div>`;
     }
 
     function populateChurchFilter() {
@@ -738,9 +747,7 @@
         return;
       }
 
-      resultsContainer.innerHTML = sortValue === 'name'
-        ? renderFlatRows(filtered)
-        : renderGroupedRows(filtered, sortValue);
+      resultsContainer.innerHTML = renderGroupedRows(filtered, sortValue);
     }
 
     function resetFilters() {
