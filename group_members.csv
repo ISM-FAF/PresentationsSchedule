@@ -54,16 +54,16 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664456,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Natalie Miller
 664457,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Jordyn Green
 664459,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Summer Hunt
-664460,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Jeremiah Iler
 664461,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Ira Gore
 664508,Naperville Choir,Choir,Calvary Church,Naperville,IL,75,19,Sophia Ravola
 664525,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Garrett Jamison
+669522,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Ruby Zawodniak
+664591,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Siva Subramanian Essakki Surya Prakash
 664583,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Steven Munagala
 664584,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Ivan Archer Reddy
 664585,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Arnan Munagala
 664586,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Ben Jacob Yelchuri
 664588,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Jonathan Joel
-664591,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Siva Subramanian Essakki Surya Prakash
 663728,Muted,"Drama Ensemble, Small",City Church,Pekin,IL,4,2,Essence Englin
 663730,The Spark,"Drama Ensemble, Small",City Church,Pekin,IL,4,3,Lillyana Garcia
 664115,Lost in the Quiet,"Drama Ensemble, Small",City Church,Pekin,IL,4,2,Selah Springer
@@ -99,8 +99,8 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664458,ALFA: Junkyard Rumble,"Percussion, Unconventional",Abundant Life Community Church,Alton,IL,10,9,Kaylee Six
 664454,ALFA: Junkyard Rumble,"Percussion, Unconventional",Abundant Life Community Church,Alton,IL,10,9,Karson McDonald
 664455,ALFA: Junkyard Rumble,"Percussion, Unconventional",Abundant Life Community Church,Alton,IL,10,9,Rebekah Calaway-Habeck
-664524,ALFA: Junkyard Rumble,"Percussion, Unconventional",Abundant Life Community Church,Alton,IL,10,9,Kenlea Jamison
 664461,ALFA: Junkyard Rumble,"Percussion, Unconventional",Abundant Life Community Church,Alton,IL,10,9,Ira Gore
+664524,ALFA: Junkyard Rumble,"Percussion, Unconventional",Abundant Life Community Church,Alton,IL,10,9,Kenlea Jamison
 664174,City Lights,Promo Video,City Church,Pekin,IL,10,3,Maxx Keliinoi
 664117,City Lights,Promo Video,City Church,Pekin,IL,10,3,Judah Springer
 664168,Edelstein Promo Video,Promo Video,Christian Life Fellowship,Antioch,IL,10,1,Joshua Edelstein
@@ -128,11 +128,11 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664338,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Brady Tow
 664453,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Aubrey Beane
 664458,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Kaylee Six
-664460,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Jeremiah Iler
 664457,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Jordyn Green
 664459,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Summer Hunt
 664524,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Kenlea Jamison
 664525,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Garrett Jamison
+669522,ALFA: Spirit Spray,Readers Theater,Abundant Life Community Church,Alton,IL,10,10,Ruby Zawodniak
 664489,Oliver Stice Short Film,Short Film,Crossroots Church,Effingham,IL,10,1,Oliver Stice
 664168,Edelstein Short Film,Short Film,Christian Life Fellowship,Antioch,IL,10,1,Joshua Edelstein
 664246,Stingl Short Film,Short Film,Living Water Community Church,Bolingbrook,IL,10,1,Makani Stingl
@@ -155,19 +155,20 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664576,The Forge,Step Troupe,Calvary AG,Flossmoor,IL,10,4,Heaven Cherry
 664577,The Forge,Step Troupe,Calvary AG,Flossmoor,IL,10,4,Alexa Frazier
 664578,The Forge,Step Troupe,Calvary AG,Flossmoor,IL,10,4,Asia Anderson
-664524,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Kenlea Jamison
-664459,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Summer Hunt
-664458,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Kaylee Six
-664457,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Jordyn Green
-664454,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Karson McDonald
-664455,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Rebekah Calaway-Habeck
-664453,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Aubrey Beane
-664338,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,8,Brady Tow
+669522,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Ruby Zawodniak
+664524,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Kenlea Jamison
+664459,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Summer Hunt
+664458,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Kaylee Six
+664457,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Jordyn Green
+664454,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Karson McDonald
+664455,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Rebekah Calaway-Habeck
+664453,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Aubrey Beane
+664338,ALFA: Singers,"Vocal Ensemble, Large",Abundant Life Community Church,Alton,IL,10,9,Brady Tow
 664455,ALFA: Trio,"Vocal Ensemble, Small",Abundant Life Community Church,Alton,IL,4,3,Rebekah Calaway-Habeck
 664458,ALFA: Trio,"Vocal Ensemble, Small",Abundant Life Community Church,Alton,IL,4,3,Kaylee Six
+664524,ALFA: Trio,"Vocal Ensemble, Small",Abundant Life Community Church,Alton,IL,4,3,Kenlea Jamison
 664499,Ignite,"Vocal Ensemble, Small",First Assembly of God,Jerseyville,IL,4,2,Makinna Moore
 664484,Ignite,"Vocal Ensemble, Small",First Assembly of God,Jerseyville,IL,4,2,Addisonn Gresham
-664524,ALFA: Trio,"Vocal Ensemble, Small",Abundant Life Community Church,Alton,IL,4,3,Kenlea Jamison
 664196,Brothers of the Weekend,"Vocal Ensemble, Small",North Parkway Assembly of God,Pekin,IL,4,2,Thomas Depew
 664244,Brothers of the Weekend,"Vocal Ensemble, Small",North Parkway Assembly of God,Pekin,IL,4,2,Spencer Thies
 664244,Whatever Youth Worship,"Worship Team, Large",North Parkway Assembly of God,Pekin,IL,10,7,Spencer Thies
@@ -214,32 +215,32 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664538,CLVRY YTH,"Worship Team, Large",Calvary AG,Flossmoor,IL,10,5,Jovi-Rose Boston
 664530,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Mick Majchrzak
 664531,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Maverick Majchrzak
+664579,Encounter Worship,"Worship Team, Large",Thrive Church,Manhattan,IL,10,7,Andrew Pangracs
 664577,CLVRY YTH,"Worship Team, Large",Calvary AG,Flossmoor,IL,10,5,Alexa Frazier
 664541,CLVRY YTH,"Worship Team, Large",Calvary AG,Flossmoor,IL,10,5,Morthen West
 664571,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Taylor Haack
 664576,CLVRY YTH,"Worship Team, Large",Calvary AG,Flossmoor,IL,10,5,Heaven Cherry
-664579,Encounter Worship,"Worship Team, Large",Thrive Church,Manhattan,IL,10,7,Andrew Pangracs
 664500,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Maddyson Woodward
+664501,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Austin Woodward
 664498,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Mikayla Woodward
+664478,For The One,"Worship Team, Large",The Fields Church,Mattoon,IL,10,6,Layla Ballard
 664510,Encounter Worship,"Worship Team, Large",Thrive Church,Manhattan,IL,10,7,Landon Boyko
 664511,Encounter Worship,"Worship Team, Large",Thrive Church,Manhattan,IL,10,7,Cole Boyko
-664501,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Austin Woodward
+664463,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Elizabeth Tracy
 664464,Whatever Youth Worship,"Worship Team, Large",North Parkway Assembly of God,Pekin,IL,10,7,Ethan Clark
 664469,For The One,"Worship Team, Large",The Fields Church,Mattoon,IL,10,6,Evan Overmyer
-664463,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Elizabeth Tracy
-664478,For The One,"Worship Team, Large",The Fields Church,Mattoon,IL,10,6,Layla Ballard
 664335,Whatever Youth Worship,"Worship Team, Large",North Parkway Assembly of God,Pekin,IL,10,7,Hayden Cassidy
 664334,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Ava Tracy
 664334,The Tracy Trio,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Ava Tracy
 664335,Whatever Youth Worship - Small,"Worship Team, Small",North Parkway Assembly of God,Pekin,IL,4,4,Hayden Cassidy
-664480,Youth on the Rock Worship,"Worship Team, Small",Church on the Rock,Huntley,IL,4,4,Luke Searles
-664463,The Tracy Trio,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Elizabeth Tracy
 664475,Youth on the Rock Worship,"Worship Team, Small",Church on the Rock,Huntley,IL,4,4,Chaela Bilyk
-664462,LWY Worship,"Worship Team, Small",Living Water Community Church,Bolingbrook,IL,4,3,Micah DeAlba
-664501,Triple Threat Worship,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Austin Woodward
-664498,Triple Threat Worship,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Mikayla Woodward
-664500,Triple Threat Worship,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Maddyson Woodward
 664495,Youth on the Rock Worship,"Worship Team, Small",Church on the Rock,Huntley,IL,4,4,Cornelius Marshall
+664463,The Tracy Trio,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Elizabeth Tracy
+664462,LWY Worship,"Worship Team, Small",Living Water Community Church,Bolingbrook,IL,4,3,Micah DeAlba
+664480,Youth on the Rock Worship,"Worship Team, Small",Church on the Rock,Huntley,IL,4,4,Luke Searles
+664498,Triple Threat Worship,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Mikayla Woodward
+664501,Triple Threat Worship,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Austin Woodward
+664500,Triple Threat Worship,"Worship Team, Small",The Journey Church,New Lenox,IL,4,3,Maddyson Woodward
 663782,FSM Worship,"Worship Team, Small",Faith Church,Peru,IL,4,3,Ayden Lesman
 664114,Youth on the Rock Worship,"Worship Team, Small",Church on the Rock,Huntley,IL,4,4,Angelica Rodriguez
 664185,Whatever Youth Worship - Small,"Worship Team, Small",North Parkway Assembly of God,Pekin,IL,4,4,Liam Carney
