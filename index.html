@@ -212,7 +212,7 @@
     .schedule-list {
       border: 1px solid var(--border);
       border-radius: 18px;
-      overflow: hidden;
+      overflow: visible;
       background: #fff;
     }
 
@@ -632,7 +632,6 @@
     function getGroupKey(row, sortValue) {
       if (sortValue === "church") return buildChurchLabel(row);
       if (sortValue === "time") return parseTimeOnly(row["Date"]);
-      if (sortValue === "name") return (row["Participant Name"] || "").trim().charAt(0).toUpperCase() || "#";
       return "";
     }
 
@@ -772,30 +771,7 @@
         return;
       }
 
-      let html = `<div class="schedule-list">`;
-      let currentGroupKey = null;
-
-      filtered.forEach(row => {
-        const groupKey = getGroupKey(row, sortValue);
-
-        if (groupKey !== currentGroupKey) {
-          currentGroupKey = groupKey;
-
-          const groupRows = filtered.filter(item => getGroupKey(item, sortValue) === groupKey);
-
-          html += `
-            <div class="group-header">
-              <div>${escapeHtml(getGroupHeaderLabel(groupKey, sortValue))}</div>
-              <div class="group-subtext">${escapeHtml(getGroupSubtext(groupRows, sortValue))}</div>
-            </div>
-          `;
-        }
-
-        html += renderRow(row);
-      });
-
-      html += `</div>`;
-      resultsContainer.innerHTML = html;
+      let html = `<div class="schedule-list">`
     }
 
     function resetFilters() {
