@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,6 +21,7 @@
       --row-alt: #fff9f6;
       --row-time: #fff2eb;
       --note-bg: #fff6f0;
+      --group-header-bg: #f7ebe5;
     }
 
     * {
@@ -129,6 +131,17 @@
       line-height: 1.4;
     }
 
+    .note-box {
+      background: var(--note-bg);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
     input[type="text"],
     select {
       width: 100%;
@@ -196,18 +209,6 @@
       line-height: 1.4;
     }
 
-    .note-box {
-      background: var(--note-bg);
-      border: 1px solid var(--border);
-      color: var(--accent);
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      margin-bottom: 12px;
-      display: none;
-    }
-
     .schedule-list {
       border: 1px solid var(--border);
       border-radius: 18px;
@@ -215,9 +216,30 @@
       background: #fff;
     }
 
+    .group-header {
+      background: var(--group-header-bg);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 0.98rem;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(120, 70, 45, 0.08);
+    }
+
+    .group-subtext {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
     .schedule-row {
       display: grid;
-      grid-template-columns: 88px 1fr;
+      grid-template-columns: 110px 1fr;
       gap: 0;
       border-bottom: 1px solid var(--border);
       background: #fff;
@@ -305,7 +327,7 @@
       }
 
       .filter-grid {
-        grid-template-columns: 1.2fr 1fr 1fr;
+        grid-template-columns: 1.25fr 1fr 1fr;
         gap: 12px;
       }
 
@@ -314,7 +336,7 @@
       }
 
       .details-grid {
-        grid-template-columns: 1.2fr 1fr 1fr;
+        grid-template-columns: 1.2fr 0.9fr 1fr;
         gap: 8px 18px;
       }
 
@@ -328,6 +350,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="app">
     <section class="hero">
@@ -347,20 +370,20 @@
     <section class="panel">
       <h2 class="section-title">Find Presentations</h2>
       <p class="section-subtitle">
-        Default view is sorted by time for easy schedule scanning.
+        Default view is grouped by church for easy coordinator scanning.
       </p>
-<div class="note-box" style="display:block;">
-  <strong>Schedule Notice:</strong><br>
-  ISM reserves the right to adjust the entry schedule as deemed necessary to ensure the successful and seamless execution of the overall event. Due to the intricate nature of scheduling logistics, no individual schedule requests can be accommodated, with the exception of direct overlaps involving a single participant’s multiple presentations. We appreciate your understanding and cooperation in making this festival a remarkable experience for all involved.  
-</div>
+
+      <div class="note-box">
+        <strong>Schedule Notice:</strong><br>
+        The presentation schedule is subject to change by the ISM team as needed leading up to the event as we
+        coordinate many moving pieces. Change requests will only be considered in the case of a direct overlap between
+        an individual student’s performances. Requests for any other reason, including but not limited to church
+        conflicts or sibling overlap, cannot be accommodated.
+      </div>
 
       <div class="filter-grid">
         <div class="full">
-          <input
-            type="text"
-            id="searchBox"
-            placeholder="Search by participant or group name..."
-          />
+          <input type="text" id="searchBox" placeholder="Search by participant or group name..." />
           <div class="search-help">
             Search by participant name, group name, church, city, or category.
           </div>
@@ -374,9 +397,9 @@
 
         <div>
           <select id="sortFilter">
+            <option value="church">Sort by Church</option>
             <option value="time">Sort by Time</option>
             <option value="name">Sort by Participant / Entry Name</option>
-            <option value="church">Sort by Church</option>
           </select>
         </div>
       </div>
@@ -389,9 +412,6 @@
       </div>
 
       <div class="status-message" id="statusMessage">Loading schedule...</div>
-      <div class="note-box" id="sortNote">
-        When sorting by participant / entry name, group presentations may still be listed under the group name. If needed, search the group name as well.
-      </div>
       <div class="results-count" id="resultsCount"></div>
 
       <div id="resultsContainer">
@@ -417,25 +437,45 @@
     const resultsContainer = document.getElementById("resultsContainer");
     const resultsCount = document.getElementById("resultsCount");
     const statusMessage = document.getElementById("statusMessage");
-    const sortNote = document.getElementById("sortNote");
 
-    function buildChurchLabel(row) {
-      const city = (row["Church City"] || "").trim();
-      const church = (row["Church Name"] || "").trim();
+    function normalize(text) {
+      return String(text || "").toLowerCase().trim();
+    }
 
-      if (city && church) return `${city} - ${church}`;
-      if (city) return city;
-      if (church) return church;
-      return "";
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function cleanFASTDate(dateString) {
+      let raw = String(dateString || "").trim();
+
+      if (!raw) return "";
+
+      if (raw.startsWith('="') && raw.endsWith('"')) {
+        raw = raw.slice(2, -1);
+      }
+
+      if (raw.startsWith('"') && raw.endsWith('"')) {
+        raw = raw.slice(1, -1);
+      }
+
+      return raw.trim();
     }
 
     function parseTimeOnly(dateString) {
-      const raw = (dateString || "").trim();
+      const raw = cleanFASTDate(dateString);
       if (!raw) return "";
 
-      const match = raw.match(/(\d{1,2}:\d{2}\s?[APMapm]{2})$/);
+      const match = raw.match(/(\d{1,2}:\d{2}\s*[APMapm]{2})$/);
       if (match) {
-        return match[1].replace(/\s?([APMapm]{2})/, " $1").toUpperCase();
+        return match[1]
+          .replace(/\s*([APMapm]{2})/, " $1")
+          .toUpperCase();
       }
 
       return raw;
@@ -456,17 +496,14 @@
       return hour * 60 + minute;
     }
 
-    function normalize(text) {
-      return String(text || "").toLowerCase().trim();
-    }
+    function buildChurchLabel(row) {
+      const city = (row["Church City"] || "").trim();
+      const church = (row["Church Name"] || "").trim();
 
-    function escapeHtml(text) {
-      return String(text || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+      if (city && church) return `${city} - ${church}`;
+      if (city) return city;
+      if (church) return church;
+      return "";
     }
 
     function loadScheduleCSV() {
@@ -475,10 +512,10 @@
           download: true,
           header: true,
           skipEmptyLines: true,
-          complete: function(results) {
+          complete: function (results) {
             resolve(results.data || []);
           },
-          error: function(error) {
+          error: function (error) {
             reject(error);
           }
         });
@@ -491,10 +528,10 @@
           download: true,
           header: true,
           skipEmptyLines: true,
-          complete: function(results) {
+          complete: function (results) {
             resolve(results.data || []);
           },
-          error: function() {
+          error: function () {
             resolve([]);
           }
         });
@@ -572,8 +609,8 @@
       const churches = [...new Set(
         allData.map(row => buildChurchLabel(row))
       )]
-      .filter(label => label !== "")
-      .sort((a, b) => a.localeCompare(b));
+        .filter(label => label !== "")
+        .sort((a, b) => a.localeCompare(b));
 
       churchFilter.innerHTML = `<option value="">All Churches (by City)</option>`;
 
@@ -592,12 +629,111 @@
       return groupMap[key] || [];
     }
 
+    function getGroupKey(row, sortValue) {
+      if (sortValue === "church") return buildChurchLabel(row);
+      if (sortValue === "time") return parseTimeOnly(row["Date"]);
+      if (sortValue === "name") return (row["Participant Name"] || "").trim().charAt(0).toUpperCase() || "#";
+      return "";
+    }
+
+    function getGroupHeaderLabel(groupKey, sortValue) {
+      if (sortValue === "church") return groupKey || "Unassigned Church";
+      if (sortValue === "time") return groupKey || "Time Unavailable";
+      if (sortValue === "name") return groupKey || "#";
+      return "";
+    }
+
+    function getGroupSubtext(groupRows, sortValue) {
+      if (!groupRows.length) return "";
+
+      if (sortValue === "church") {
+        return `${groupRows.length} presentation${groupRows.length === 1 ? "" : "s"}`;
+      }
+
+      if (sortValue === "time") {
+        return `${groupRows.length} presentation${groupRows.length === 1 ? "" : "s"} in this time slot`;
+      }
+
+      if (sortValue === "name") {
+        return `${groupRows.length} presentation${groupRows.length === 1 ? "" : "s"}`;
+      }
+
+      return "";
+    }
+
+    function sortRows(filtered, sortValue) {
+      filtered.sort((a, b) => {
+        if (sortValue === "church") {
+          const churchA = normalize(buildChurchLabel(a));
+          const churchB = normalize(buildChurchLabel(b));
+          if (churchA !== churchB) return churchA.localeCompare(churchB);
+
+          const timeDiff = timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
+          if (timeDiff !== 0) return timeDiff;
+
+          return normalize(a["Participant Name"]).localeCompare(normalize(b["Participant Name"]));
+        }
+
+        if (sortValue === "time") {
+          const timeDiff = timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
+          if (timeDiff !== 0) return timeDiff;
+
+          return normalize(a["Participant Name"]).localeCompare(normalize(b["Participant Name"]));
+        }
+
+        const nameA = normalize(a["Participant Name"]);
+        const nameB = normalize(b["Participant Name"]);
+        if (nameA !== nameB) return nameA.localeCompare(nameB);
+
+        return timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
+      });
+    }
+
+    function renderRow(row) {
+      const entryName = row["Participant Name"] || "";
+      const category = row["Category"] || "";
+      const room = row["Room"] || "";
+      const timeOnly = parseTimeOnly(row["Date"]);
+      const churchLabel = buildChurchLabel(row);
+      const members = getGroupMembers(entryName);
+
+      return `
+        <div class="schedule-row">
+          <div class="time-cell">${escapeHtml(timeOnly)}</div>
+          <div class="info-cell">
+            <div class="entry-name">${escapeHtml(entryName)}</div>
+            <div class="details-grid">
+              <div class="detail">
+                <span class="label">Category:</span><br>
+                ${escapeHtml(category)}
+              </div>
+
+              <div class="detail">
+                <span class="label">Room:</span><br>
+                ${escapeHtml(room)}
+              </div>
+
+              <div class="detail">
+                <span class="label">Church:</span><br>
+                ${escapeHtml(churchLabel)}
+              </div>
+            </div>
+
+            ${members.length > 0 ? `
+              <div class="group-members">
+                <span class="label">Group Members:</span>
+                ${escapeHtml(members.join(", "))}
+              </div>
+            ` : ""}
+          </div>
+        </div>
+      `;
+    }
+
     function displayResults() {
       const searchValue = normalize(searchBox.value);
       const churchValue = normalize(churchFilter.value);
       const sortValue = sortFilter.value;
-
-      sortNote.style.display = sortValue === "name" ? "block" : "none";
 
       const filtered = allData.filter(row => {
         const entryName = normalize(row["Participant Name"]);
@@ -622,26 +758,7 @@
         return matchesSearch && matchesChurch;
       });
 
-      filtered.sort((a, b) => {
-        if (sortValue === "name") {
-          const nameA = normalize(a["Participant Name"]);
-          const nameB = normalize(b["Participant Name"]);
-          return nameA.localeCompare(nameB);
-        }
-
-        if (sortValue === "church") {
-          const churchA = normalize(buildChurchLabel(a));
-          const churchB = normalize(buildChurchLabel(b));
-          if (churchA !== churchB) return churchA.localeCompare(churchB);
-
-          return timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
-        }
-
-        const timeDiff = timeToMinutes(a["Date"]) - timeToMinutes(b["Date"]);
-        if (timeDiff !== 0) return timeDiff;
-
-        return normalize(a["Participant Name"]).localeCompare(normalize(b["Participant Name"]));
-      });
+      sortRows(filtered, sortValue);
 
       resultsCount.textContent =
         `${filtered.length} presentation${filtered.length === 1 ? "" : "s"} found`;
@@ -655,51 +772,36 @@
         return;
       }
 
-      const html = filtered.map(row => {
-        const entryName = row["Participant Name"] || "";
-        const category = row["Category"] || "";
-        const room = row["Room"] || "";
-        const timeOnly = parseTimeOnly(row["Date"]);
-        const churchLabel = buildChurchLabel(row);
-        const members = getGroupMembers(entryName);
+      let html = `<div class="schedule-list">`;
+      let currentGroupKey = null;
 
-        return `
-          <div class="schedule-row">
-            <div class="time-cell">${escapeHtml(timeOnly)}</div>
-            <div class="info-cell">
-              <div class="entry-name">${escapeHtml(entryName)}</div>
-              <div class="details-grid">
-                <div class="detail">
-                  <span class="label">Category:</span><br>
-                  ${escapeHtml(category)}
-                </div>
-                <div class="detail">
-                  <span class="label">Room:</span><br>
-                  ${escapeHtml(room)}
-                </div>
-                <div class="detail">
-                  <span class="label">Church:</span><br>
-                  ${escapeHtml(churchLabel)}
-                </div>
-              </div>
-              ${members.length > 0 ? `
-                <div class="group-members">
-                  <span class="label">Group Members:</span>
-                  ${escapeHtml(members.join(", "))}
-                </div>
-              ` : ""}
+      filtered.forEach(row => {
+        const groupKey = getGroupKey(row, sortValue);
+
+        if (groupKey !== currentGroupKey) {
+          currentGroupKey = groupKey;
+
+          const groupRows = filtered.filter(item => getGroupKey(item, sortValue) === groupKey);
+
+          html += `
+            <div class="group-header">
+              <div>${escapeHtml(getGroupHeaderLabel(groupKey, sortValue))}</div>
+              <div class="group-subtext">${escapeHtml(getGroupSubtext(groupRows, sortValue))}</div>
             </div>
-          </div>
-        `;
-      }).join("");
+          `;
+        }
 
-      resultsContainer.innerHTML = `<div class="schedule-list">${html}</div>`;
+        html += renderRow(row);
+      });
+
+      html += `</div>`;
+      resultsContainer.innerHTML = html;
     }
 
     function resetFilters() {
       searchBox.value = "";
       churchFilter.value = "";
-      sortFilter.value = "time";
+      sortFilter.value = "church";
       displayResults();
     }
 
@@ -712,4 +814,5 @@
     setInterval(loadAllData, 60000);
   </script>
 </body>
+
 </html>
