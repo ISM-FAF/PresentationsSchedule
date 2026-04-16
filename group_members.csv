@@ -58,12 +58,12 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664508,Naperville Choir,Choir,Calvary Church,Naperville,IL,75,19,Sophia Ravola
 664525,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Garrett Jamison
 669522,ALFA: Choir,Choir,Abundant Life Community Church,Alton,IL,75,13,Ruby Zawodniak
-664591,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Siva Subramanian Essakki Surya Prakash
 664583,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Steven Munagala
 664584,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Ivan Archer Reddy
 664585,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Arnan Munagala
 664586,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Ben Jacob Yelchuri
 664588,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Jonathan Joel
+664591,Teen Boys CICAG,Christian Band,Chicago Indian Church Assembly of God,Palatine,IL,10,6,Siva Subramanian Essakki Surya Prakash
 663728,Muted,"Drama Ensemble, Small",City Church,Pekin,IL,4,2,Essence Englin
 663730,The Spark,"Drama Ensemble, Small",City Church,Pekin,IL,4,3,Lillyana Garcia
 664115,Lost in the Quiet,"Drama Ensemble, Small",City Church,Pekin,IL,4,2,Selah Springer
@@ -190,12 +190,12 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664182,Encounter Worship,"Worship Team, Large",Thrive Church,Manhattan,IL,10,7,Shine Bougher
 664183,Made to Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,9,Darien Edward
 664185,Whatever Youth Worship,"Worship Team, Large",North Parkway Assembly of God,Pekin,IL,10,7,Liam Carney
-663710,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,6,Maliah Glass
-663712,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,6,Isaiah Huerta
-663713,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,6,Jaslene Pereira
-663714,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,6,Sebastian Reyna
-663715,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,6,Dania Mejia
-663716,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,6,Jessica Gonzalez
+663710,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,7,Maliah Glass
+663712,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,7,Isaiah Huerta
+663713,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,7,Jaslene Pereira
+663714,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,7,Sebastian Reyna
+663715,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,7,Dania Mejia
+663716,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,7,Jessica Gonzalez
 663718,Kingdom Builders,"Worship Team, Large",Calvary Church,Naperville,IL,10,10,Pranay Sukh
 663708,Kingdom Builders,"Worship Team, Large",Calvary Church,Naperville,IL,10,10,Saanvi Pahuja
 663760,Kingdom Builders,"Worship Team, Large",Calvary Church,Naperville,IL,10,10,Samuel Jacob
@@ -220,6 +220,7 @@ Registrant ID,Group Name,Category Description,Church Name,Church City,Church Sta
 664541,CLVRY YTH,"Worship Team, Large",Calvary AG,Flossmoor,IL,10,5,Morthen West
 664571,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Taylor Haack
 664576,CLVRY YTH,"Worship Team, Large",Calvary AG,Flossmoor,IL,10,5,Heaven Cherry
+669531,CY Worship,"Worship Team, Large",Calvary Church,Naperville,IL,10,7,Isaac Huerta
 664500,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Maddyson Woodward
 664501,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Austin Woodward
 664498,JYM Worship,"Worship Team, Large",The Journey Church,New Lenox,IL,10,10,Mikayla Woodward
